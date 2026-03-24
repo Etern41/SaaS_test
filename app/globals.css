@@ -4,53 +4,55 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 220 15% 10%;
+    --background: 220 16% 94%;
+    --foreground: 224 71% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 220 15% 10%;
+    --card-foreground: 224 71% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 10%;
+    --popover-foreground: 224 71% 4%;
     --primary: 252 94% 67%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 15% 10%;
-    --muted: 220 14% 96%;
+    --secondary: 220 14% 90%;
+    --secondary-foreground: 224 71% 4%;
+    --muted: 220 14% 90%;
     --muted-foreground: 220 9% 46%;
     --accent: 252 90% 96%;
     --accent-foreground: 252 47% 35%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
+    --border: 220 13% 86%;
+    --input: 220 13% 86%;
     --ring: 252 94% 67%;
     --radius: 0.5rem;
-    --kanban-column-bg: 220 14% 96%;
-    --kanban-column-border: 220 13% 93%;
+    --kanban-bg: 220 16% 92%;
+    --kanban-column-bg: 220 14% 97%;
+    --kanban-column-border: 220 13% 88%;
   }
 
   .dark {
-    --background: 225 8% 10%;
-    --foreground: 220 8% 86%;
-    --card: 225 8% 13%;
-    --card-foreground: 220 8% 86%;
-    --popover: 225 10% 14%;
-    --popover-foreground: 220 8% 86%;
-    --primary: 252 80% 65%;
+    --background: 229 19% 10%;
+    --foreground: 213 31% 91%;
+    --card: 229 19% 14%;
+    --card-foreground: 213 31% 91%;
+    --popover: 229 19% 14%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 252 94% 67%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 225 7% 17%;
-    --secondary-foreground: 220 8% 84%;
-    --muted: 225 7% 17%;
-    --muted-foreground: 220 5% 50%;
-    --accent: 252 14% 19%;
+    --secondary: 229 19% 16%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 229 19% 16%;
+    --muted-foreground: 215 20% 52%;
+    --accent: 252 18% 20%;
     --accent-foreground: 252 55% 72%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 225 6% 20%;
-    --input: 225 6% 21%;
-    --ring: 252 80% 65%;
+    --border: 229 19% 20%;
+    --input: 229 19% 20%;
+    --ring: 252 94% 67%;
     --radius: 0.5rem;
-    --kanban-column-bg: 225 8% 12%;
-    --kanban-column-border: 225 6% 18%;
+    --kanban-bg: 229 19% 8%;
+    --kanban-column-bg: 229 19% 12%;
+    --kanban-column-border: 229 19% 18%;
   }
 }
 
@@ -64,17 +66,22 @@
 }
 
 @layer utilities {
+  .kanban-board-bg {
+    background: hsl(var(--kanban-bg));
+  }
+
   .kanban-column {
-    @apply flex flex-col rounded-lg;
+    @apply flex flex-col rounded-xl;
     min-width: 272px;
     max-width: 304px;
     min-height: min(70vh, 36rem);
     background: hsl(var(--kanban-column-bg));
+    border: 1px solid hsl(var(--kanban-column-border));
     overflow: visible;
   }
 
   .kanban-column-scroll {
-    @apply flex flex-1 flex-col gap-2 overflow-y-auto px-1.5 py-1.5;
+    @apply flex flex-1 flex-col gap-1.5 overflow-y-auto px-2 py-1.5;
     overflow-x: clip;
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--muted-foreground) / 0.2) transparent;
@@ -89,21 +96,21 @@
   }
 
   .kanban-card-surface {
-    @apply rounded-md bg-card text-card-foreground transition-all duration-150 ease-out;
+    @apply rounded-lg bg-card text-card-foreground transition-all duration-150 ease-out;
     border: 1px solid hsl(var(--border));
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04);
   }
 
   .kanban-card-surface:hover {
-    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.08);
-    transform: translateY(-1px);
+    box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.08);
+    transform: translateY(-1px) scale(1.005);
   }
 
   .dark .kanban-card-surface {
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.15);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.2);
   }
 
   .dark .kanban-card-surface:hover {
-    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.25);
+    box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.3);
   }
 }

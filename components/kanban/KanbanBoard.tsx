@@ -61,6 +61,9 @@ export default function KanbanBoard({
   onTaskDeleted,
   onTasksChange,
   onCountsChanged,
+  onAddTask,
+  assigneeFilter = "all",
+  priorityFilter = "all",
 }: {
   tasks: Task[];
   members: Member[];
@@ -68,6 +71,9 @@ export default function KanbanBoard({
   onTaskDeleted: (taskId: string) => void;
   onTasksChange: (tasks: Task[]) => void;
   onCountsChanged: (taskId: string, counts: { subtasks: number; comments: number; attachments: number }) => void;
+  onAddTask?: (status: TaskStatus) => void;
+  assigneeFilter?: "all" | "none" | string;
+  priorityFilter?: "all" | Task["priority"];
 }) {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -83,9 +89,18 @@ export default function KanbanBoard({
     return columnHit ? [columnHit] : collisions;
   }, []);
 
+  function passesFilters(t: Task): boolean {
+    if (assigneeFilter !== "all") {
+      if (assigneeFilter === "none" && t.assigneeId) return false;
+      if (assigneeFilter !== "none" && t.assigneeId !== assigneeFilter) return false;
+    }
+    if (priorityFilter !== "all" && t.priority !== priorityFilter) return false;
+    return true;
+  }
+
   function getTasksByStatus(status: TaskStatus) {
     return tasks
-      .filter((t) => t.status === status)
+      .filter((t) => passesFilters(t) && t.status === status)
       .sort((a, b) => a.position - b.position);
   }
 
@@ -135,7 +150,7 @@ export default function KanbanBoard({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4 flex-1 min-h-0">
+        <div className="flex gap-3 overflow-x-auto pb-4 flex-1 min-h-0">
           {COLUMNS.map((col) => (
             <KanbanColumn
               key={col.id}
@@ -146,6 +161,7 @@ export default function KanbanBoard({
               tasks={getTasksByStatus(col.id)}
               activeTaskId={activeTask?.id ?? null}
               onTaskClick={setEditingTask}
+              onAddTask={onAddTask}
             />
           ))}
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, FolderKanban, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProjectCard from "@/components/projects/ProjectCard";
@@ -23,6 +24,7 @@ interface Project {
 }
 
 export default function ProjectsPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -87,7 +89,10 @@ export default function ProjectsPage() {
       <CreateProjectModal
         open={showCreate}
         onClose={() => setShowCreate(false)}
-        onCreated={fetchProjects}
+        onCreated={(project) => {
+          void fetchProjects();
+          router.push(`/projects/${project.id}`);
+        }}
       />
     </div>
   );

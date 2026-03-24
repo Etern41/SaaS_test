@@ -9,26 +9,22 @@ import { cn } from "@/lib/utils";
 
 type Priority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
-const PRIORITY_STYLES: Record<Priority, { label: string; light: string; dark: string }> = {
+const PRIORITY_STYLES: Record<Priority, { label: string; classes: string }> = {
   LOW: {
     label: "Низкий",
-    light: "bg-zinc-100 text-zinc-600",
-    dark: "dark:bg-zinc-700/30 dark:text-zinc-400",
+    classes: "bg-zinc-100 text-zinc-600 dark:bg-zinc-700/40 dark:text-zinc-400",
   },
   MEDIUM: {
     label: "Средний",
-    light: "bg-blue-50 text-blue-700",
-    dark: "dark:bg-blue-500/15 dark:text-blue-400",
+    classes: "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400",
   },
   HIGH: {
     label: "Высокий",
-    light: "bg-orange-50 text-orange-700",
-    dark: "dark:bg-orange-500/15 dark:text-orange-400",
+    classes: "bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-400",
   },
   URGENT: {
     label: "Срочный",
-    light: "bg-red-50 text-red-700",
-    dark: "dark:bg-red-500/15 dark:text-red-400",
+    classes: "bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-400",
   },
 };
 
@@ -69,25 +65,19 @@ function CardContent({ task, isOverlay }: { task: Task; isOverlay?: boolean }) {
         isOverlay && "shadow-xl ring-1 ring-primary/20 rotate-1"
       )}
     >
-      <div className="mb-1 text-[10px] text-muted-foreground/50 uppercase tracking-wider">
-        TASK-{task.id.slice(0, 6)}
-      </div>
-
       <h4 className="text-sm font-medium leading-snug line-clamp-2 text-foreground">
         {task.title}
       </h4>
 
-      <div className="flex items-center gap-2 mt-2 flex-wrap">
-        <span className={cn("rounded-full text-[11px] font-medium px-2 py-0.5", p.light, p.dark)}>
+      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+        <span className={cn("rounded-full text-[10px] font-semibold px-2 py-0.5", p.classes)}>
           {p.label}
         </span>
         {task.deadline && (
           <span
             className={cn(
               "flex items-center gap-0.5 text-[11px]",
-              isOverdue
-                ? "text-red-500 font-medium"
-                : "text-muted-foreground"
+              isOverdue ? "text-red-500 font-medium" : "text-muted-foreground"
             )}
           >
             <Calendar className="h-3 w-3" />

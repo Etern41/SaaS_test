@@ -1,6 +1,7 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
+import { Plus } from "lucide-react";
 import TaskCard from "./TaskCard";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,25 @@ interface Task {
   _count?: { subtasks: number; comments: number; attachments: number };
 }
 
+const STATUS_PILL: Record<TaskStatus, { light: string; dark: string }> = {
+  TODO: {
+    light: "bg-slate-200 text-slate-700",
+    dark: "dark:bg-slate-700/50 dark:text-slate-300",
+  },
+  IN_PROGRESS: {
+    light: "bg-blue-100 text-blue-700",
+    dark: "dark:bg-blue-900/40 dark:text-blue-300",
+  },
+  REVIEW: {
+    light: "bg-amber-100 text-amber-700",
+    dark: "dark:bg-amber-900/40 dark:text-amber-300",
+  },
+  DONE: {
+    light: "bg-emerald-100 text-emerald-700",
+    dark: "dark:bg-emerald-900/40 dark:text-emerald-300",
+  },
+};
+
 export default function KanbanColumn(props: {
   id: TaskStatus;
   title: string;
@@ -34,25 +54,32 @@ export default function KanbanColumn(props: {
   tasks: Task[];
   activeTaskId: string | null;
   onTaskClick: (task: Task) => void;
+  onAddTask?: (status: TaskStatus) => void;
 }) {
-  const { id, title, color, tasks, activeTaskId, onTaskClick } = props;
+  const { id, title, tasks, activeTaskId, onTaskClick, onAddTask } = props;
   const { setNodeRef, isOver } = useDroppable({ id });
   const visibleTasks = tasks.filter((t) => t.id !== activeTaskId);
+  const pill = STATUS_PILL[id];
 
   return (
     <div
       ref={setNodeRef}
       className={cn(
         "kanban-column transition-all duration-150",
-        isOver && "ring-1 ring-primary/20 bg-primary/[0.02]"
+        isOver && "ring-1 ring-primary/25"
       )}
     >
-      <div className="flex items-center gap-2 px-2 py-3">
-        <div className={cn("h-2 w-2 rounded-full shrink-0", color)} />
-        <span className="text-sm font-semibold text-foreground">{title}</span>
-        <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-          {visibleTasks.length}
+      <div className="flex items-center gap-2 px-3 py-3">
+        <span
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide",
+            pill.light,
+            pill.dark
+          )}
+        >
+          {title}
         </span>
+        <span className="text-xs text-muted-foreground">{visibleTasks.length}</span>
       </div>
 
       <div className="kanban-column-scroll">
@@ -64,7 +91,7 @@ export default function KanbanColumn(props: {
           />
         ))}
         {isOver && (
-          <div className="rounded-md border border-dashed border-primary/20 bg-primary/[0.03] h-12 shrink-0" />
+          <div className="rounded-lg border border-dashed border-primary/25 bg-primary/[0.04] h-12 shrink-0" />
         )}
         {visibleTasks.length === 0 && !isOver && (
           <div className="flex flex-1 items-center justify-center py-8 text-sm text-muted-foreground">
@@ -72,6 +99,17 @@ export default function KanbanColumn(props: {
           </div>
         )}
       </div>
+
+      {onAddTask && (
+        <button
+          type="button"
+          onClick={() => onAddTask(id)}
+          className="flex w-full items-center gap-2 rounded-b-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Добавить задачу
+        </button>
+      )}
     </div>
   );
 }

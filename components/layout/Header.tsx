@@ -8,7 +8,7 @@ import {
   LogOut,
   Menu,
   LayoutDashboard,
-  FolderKanban,
+  Home,
   BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/projects", label: "Проекты", icon: FolderKanban },
+  { href: "/projects", label: "Главная", icon: Home },
   { href: "/analytics", label: "Аналитика", icon: BarChart3 },
 ];
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -38,10 +38,11 @@ interface Member {
 }
 
 export default function CreateTaskModal({
-  open, onClose, projectId, members, onCreated,
+  open, onClose, projectId, members, onCreated, defaultStatus,
 }: {
   open: boolean; onClose: () => void; projectId: string;
   members: Member[]; onCreated: (task: Task) => void;
+  defaultStatus?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -49,6 +50,11 @@ export default function CreateTaskModal({
   const [priority, setPriority] = useState("MEDIUM");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [statusValue, setStatusValue] = useState(defaultStatus || "TODO");
+
+  useEffect(() => {
+    if (open && defaultStatus) setStatusValue(defaultStatus);
+  }, [open, defaultStatus]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -64,6 +70,7 @@ export default function CreateTaskModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title, description: description || null,
+          status: statusValue,
           deadline: deadline || null,
           assigneeId: assigneeId && assigneeId !== "none" ? assigneeId : null,
           priority, projectId,
@@ -84,7 +91,7 @@ export default function CreateTaskModal({
       });
       onClose();
       setTitle(""); setDescription("");
-      setAssigneeId(""); setPriority("MEDIUM");
+      setAssigneeId(""); setPriority("MEDIUM"); setStatusValue("TODO");
     } catch {
       setError("Ошибка сервера");
       toast.error("Не удалось создать задачу");
@@ -115,6 +122,18 @@ export default function CreateTaskModal({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label>Статус</Label>
+              <Select value={statusValue} onValueChange={setStatusValue}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="TODO">К выполнению</SelectItem>
+                  <SelectItem value="IN_PROGRESS">В работе</SelectItem>
+                  <SelectItem value="REVIEW">На проверке</SelectItem>
+                  <SelectItem value="DONE">Готово</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label>Приоритет</Label>
               <Select value={priority} onValueChange={setPriority}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -126,6 +145,8 @@ export default function CreateTaskModal({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Дедлайн</Label>
               <Input name="deadline" type="date" />

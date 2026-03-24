@@ -13,7 +13,11 @@ import { LIMITS } from "@/lib/validations";
 
 export default function CreateProjectModal({
   open, onClose, onCreated,
-}: { open: boolean; onClose: () => void; onCreated: () => void }) {
+}: {
+  open: boolean;
+  onClose: () => void;
+  onCreated: (project: { id: string }) => void;
+}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [name, setName] = useState("");
@@ -38,7 +42,13 @@ export default function CreateProjectModal({
         setLoading(false);
         return;
       }
-      onCreated();
+      const created = (await res.json()) as { id: string };
+      if (!created?.id) {
+        setError("Ошибка: нет id проекта");
+        setLoading(false);
+        return;
+      }
+      onCreated({ id: created.id });
       onClose();
       setName("");
     } catch { setError("Ошибка сервера"); }
@@ -46,7 +56,7 @@ export default function CreateProjectModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Новый проект</DialogTitle>
