@@ -35,6 +35,7 @@ interface Task {
   assignee: TaskAssignee | null;
   projectId: string;
   position: number;
+  _count?: { subtasks: number; comments: number; attachments: number };
 }
 
 interface Member {
@@ -43,11 +44,11 @@ interface Member {
   user: { id: string; name: string; email: string };
 }
 
-const COLUMNS: { id: TaskStatus; title: string }[] = [
-  { id: "TODO", title: "К выполнению" },
-  { id: "IN_PROGRESS", title: "В работе" },
-  { id: "REVIEW", title: "На проверке" },
-  { id: "DONE", title: "Готово" },
+const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
+  { id: "TODO", title: "К выполнению", color: "bg-slate-400" },
+  { id: "IN_PROGRESS", title: "В работе", color: "bg-blue-500" },
+  { id: "REVIEW", title: "На проверке", color: "bg-amber-500" },
+  { id: "DONE", title: "Готово", color: "bg-emerald-500" },
 ];
 
 const COLUMN_IDS = new Set<string>(COLUMNS.map((c) => c.id));
@@ -142,6 +143,7 @@ export default function KanbanBoard({
               key={col.id}
               id={col.id}
               title={col.title}
+              color={col.color}
               tasks={getTasksByStatus(col.id)}
               activeTaskId={activeTask?.id ?? null}
               onTaskClick={setEditingTask}
@@ -159,7 +161,10 @@ export default function KanbanBoard({
           onClose={() => setEditingTask(null)}
           task={editingTask}
           members={members}
-          onUpdated={onUpdate}
+          onUpdated={() => {
+            setEditingTask(null);
+            onUpdate();
+          }}
         />
       )}
     </>

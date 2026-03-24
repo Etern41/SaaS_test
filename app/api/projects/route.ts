@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { projectCreateSchema } from "@/lib/validations";
 
 export async function GET() {
   const session = await auth();
@@ -37,19 +38,19 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { name, description } = await req.json();
-
-    if (!name || name.trim().length === 0) {
+    const body = await req.json();
+    const parsed = projectCreateSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Название проекта обязательно" },
+        { error: parsed.error.issues[0].message },
         { status: 400 }
       );
     }
 
     const project = await prisma.project.create({
       data: {
-        name: name.trim(),
-        description: description?.trim() || null,
+        name: parsed.data.name.trim(),
+        description: parsed.data.description?.trim() || null,
         ownerId: session.user.id,
         members: {
           create: {

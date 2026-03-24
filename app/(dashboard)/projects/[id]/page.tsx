@@ -33,6 +33,7 @@ interface Task {
   assignee: TaskAssignee | null;
   projectId: string;
   position: number;
+  _count?: { subtasks: number; comments: number; attachments: number };
 }
 
 interface Project {

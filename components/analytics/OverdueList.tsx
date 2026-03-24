@@ -1,8 +1,10 @@
 "use client";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Badge } from "@/components/ui/badge";
+import { AlertCircle } from "lucide-react";
 
 interface OverdueTask {
   id: string;
@@ -15,49 +17,47 @@ interface OverdueTask {
 export default function OverdueList({ tasks }: { tasks: OverdueTask[] }) {
   if (tasks.length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        Нет просроченных задач
-      </p>
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 mb-2">
+          <AlertCircle className="h-5 w-5 text-emerald-500" />
+        </div>
+        <p className="text-sm text-muted-foreground">Просроченных задач нет</p>
+      </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b text-left">
-            <th className="pb-2 font-medium">Задача</th>
-            <th className="pb-2 font-medium">Исполнитель</th>
-            <th className="pb-2 font-medium">Дедлайн</th>
-            <th className="pb-2 font-medium text-right">Просрочка</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task) => (
-            <tr key={task.id} className="border-b last:border-0">
-              <td className="py-2 font-medium">{task.title}</td>
-              <td className="py-2 text-muted-foreground">
-                {task.assignee?.name || "—"}
-              </td>
-              <td className="py-2 text-muted-foreground">
-                {format(new Date(task.deadline), "d MMM yyyy", { locale: ru })}
-              </td>
-              <td className="py-2 text-right">
-                <Badge variant="destructive">
-                  {task.daysOverdue} {getDayWord(task.daysOverdue)}
-                </Badge>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="space-y-2">
+      {tasks.map((task) => (
+        <div
+          key={task.id}
+          className="flex items-center gap-3 rounded-lg border border-red-100 bg-red-50/50 p-3"
+        >
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[10px] font-mono text-muted-foreground">
+                TASK-{task.id.slice(0, 6).toUpperCase()}
+              </span>
+            </div>
+            <p className="text-sm font-medium truncate">{task.title}</p>
+            <p className="text-xs text-muted-foreground">
+              Дедлайн: {format(new Date(task.deadline), "d MMMM yyyy", { locale: ru })}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Badge variant="destructive" className="text-[10px]">
+              -{task.daysOverdue} дн.
+            </Badge>
+            {task.assignee && (
+              <Avatar className="h-6 w-6" title={task.assignee.name}>
+                <AvatarFallback className="text-[9px] bg-red-100 text-red-700">
+                  {task.assignee.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
-}
-
-function getDayWord(n: number): string {
-  if (n % 10 === 1 && n % 100 !== 11) return "день";
-  if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100))
-    return "дня";
-  return "дней";
 }

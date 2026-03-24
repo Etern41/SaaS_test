@@ -4,68 +4,72 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { FolderKanban } from "lucide-react";
+import { FolderKanban, Users, CheckSquare } from "lucide-react";
 
-interface ProjectMember {
+interface Member {
   id: string;
   role: string;
   user: { id: string; name: string; email: string };
 }
 
-interface Project {
-  id: string;
-  name: string;
-  description: string | null;
-  ownerId: string;
-  owner: { id: string; name: string; email: string };
-  members: ProjectMember[];
-  _count: { tasks: number };
+interface ProjectCardProps {
+  project: {
+    id: string;
+    name: string;
+    description: string | null;
+    ownerId: string;
+    owner: { id: string; name: string; email: string };
+    members: Member[];
+    _count: { tasks: number };
+  };
 }
 
-export default function ProjectCard({ project }: { project: Project }) {
+export default function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <Link href={`/projects/${project.id}`}>
-      <Card className="transition-shadow hover:shadow-md cursor-pointer">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              <FolderKanban className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">{project.name}</CardTitle>
+    <Link href={`/projects/${project.id}`} className="block group">
+      <Card className="h-full transition-all duration-200 hover:shadow-md hover:border-primary/30 group-hover:-translate-y-0.5">
+        <CardHeader className="pb-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                <FolderKanban className="h-4 w-4" />
+              </div>
+              <CardTitle className="text-base line-clamp-1">{project.name}</CardTitle>
             </div>
-            <Badge variant="secondary">
-              {project._count.tasks} {getTaskWord(project._count.tasks)}
-            </Badge>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           {project.description && (
-            <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
-              {project.description}
-            </p>
+            <p className="text-sm text-muted-foreground line-clamp-2">{project.description}</p>
           )}
-          <div className="flex items-center gap-1">
-            {project.members.slice(0, 5).map((member) => (
-              <Avatar key={member.id} className="h-7 w-7 border-2 border-background">
-                <AvatarFallback className="text-[10px]">
-                  {member.user.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            ))}
-            {project.members.length > 5 && (
-              <span className="ml-1 text-xs text-muted-foreground">
-                +{project.members.length - 5}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <CheckSquare className="h-3.5 w-3.5" />
+                {project._count.tasks}
               </span>
-            )}
+              <span className="flex items-center gap-1">
+                <Users className="h-3.5 w-3.5" />
+                {project.members.length}
+              </span>
+            </div>
+            <div className="flex -space-x-1.5">
+              {project.members.slice(0, 3).map((m) => (
+                <Avatar key={m.id} className="h-6 w-6 border-2 border-card" title={m.user.name}>
+                  <AvatarFallback className="text-[9px] bg-primary/10 text-primary">
+                    {m.user.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              ))}
+              {project.members.length > 3 && (
+                <Badge variant="secondary" className="h-6 rounded-full px-1.5 text-[9px]">
+                  +{project.members.length - 3}
+                </Badge>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
     </Link>
   );
-}
-
-function getTaskWord(count: number): string {
-  if (count % 10 === 1 && count % 100 !== 11) return "задача";
-  if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100))
-    return "задачи";
-  return "задач";
 }

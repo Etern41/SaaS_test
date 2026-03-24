@@ -4,26 +4,30 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    /* Warm off-whites, crisp neutrals — ClickUp-adjacent polish */
+    --background: 40 33% 98.5%;
+    --foreground: 222 47% 11%;
+    --card: 40 40% 99.5%;
+    --card-foreground: 222 47% 11%;
+    --popover: 40 40% 99.5%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 250 84% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 250 92% 97%;
+    --accent-foreground: 250 47% 35%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 90%;
+    --input: 220 13% 90%;
+    --ring: 250 84% 61%;
     --radius: 0.5rem;
+    /* Kanban-specific tokens */
+    --kanban-column-bg: 220 14% 97%;
+    --kanban-column-border: 220 13% 91%;
   }
 }
 
@@ -32,6 +36,38 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer utilities {
+  /* Kanban column shell — use on column wrappers */
+  .kanban-column {
+    @apply flex min-h-[min(70vh,36rem)] min-w-[17.5rem] max-w-[20rem] flex-col rounded-xl border bg-[hsl(var(--kanban-column-bg))] shadow-sm;
+    border-color: hsl(var(--kanban-column-border));
+  }
+
+  .kanban-column-header {
+    @apply flex shrink-0 items-center justify-between gap-2 border-b px-3 py-2.5 text-sm font-semibold tracking-tight;
+    border-color: hsl(var(--kanban-column-border) / 0.85);
+  }
+
+  .kanban-column-scroll {
+    @apply flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden p-2;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+  }
+
+  .kanban-column-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .kanban-column-scroll::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-muted-foreground/30;
+  }
+
+  .kanban-card-surface {
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md;
+    border-color: hsl(var(--border) / 0.9);
   }
 }

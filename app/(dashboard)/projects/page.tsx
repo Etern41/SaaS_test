@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FolderKanban, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProjectCard from "@/components/projects/ProjectCard";
 import CreateProjectModal from "@/components/projects/CreateProjectModal";
 
-interface ProjectMember {
+interface Member {
   id: string;
   role: string;
   user: { id: string; name: string; email: string };
@@ -18,9 +18,8 @@ interface Project {
   description: string | null;
   ownerId: string;
   owner: { id: string; name: string; email: string };
-  members: ProjectMember[];
+  members: Member[];
   _count: { tasks: number };
-  createdAt: string;
 }
 
 export default function ProjectsPage() {
@@ -30,8 +29,9 @@ export default function ProjectsPage() {
 
   const fetchProjects = useCallback(async () => {
     const res = await fetch("/api/projects");
-    const data = await res.json();
-    setProjects(data);
+    if (res.ok) {
+      setProjects(await res.json());
+    }
     setLoading(false);
   }, []);
 
@@ -39,37 +39,47 @@ export default function ProjectsPage() {
     fetchProjects();
   }, [fetchProjects]);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Проекты</h1>
-          <p className="text-muted-foreground">Управляйте своими проектами</p>
+          <h1 className="text-2xl font-bold tracking-tight">Проекты</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {projects.length > 0
+              ? `${projects.length} ${projects.length === 1 ? "проект" : "проектов"}`
+              : "Создайте первый проект"}
+          </p>
         </div>
         <Button onClick={() => setShowCreate(true)}>
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="mr-1.5 h-4 w-4" />
           Новый проект
         </Button>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
-      ) : projects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <p className="mb-4 text-muted-foreground">
-            У вас пока нет проектов
-          </p>
+      {projects.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-16">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 mb-4">
+            <FolderKanban className="h-7 w-7 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold mb-1">Нет проектов</h3>
+          <p className="text-sm text-muted-foreground mb-4">Начните с создания нового проекта</p>
           <Button onClick={() => setShowCreate(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Создать первый проект
+            <Plus className="mr-1.5 h-4 w-4" />
+            Создать проект
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((p) => (
+            <ProjectCard key={p.id} project={p} />
           ))}
         </div>
       )}

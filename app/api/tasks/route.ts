@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { taskCreateSchema } from "@/lib/validations";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -9,15 +10,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { title, description, status, priority, deadline, assigneeId, projectId } =
-      await req.json();
-
-    if (!title || !projectId) {
+    const body = await req.json();
+    const parsed = taskCreateSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Название и проект обязательны" },
+        { error: parsed.error.issues[0].message },
         { status: 400 }
       );
     }
+
+    const { title, description, status, priority, deadline, assigneeId, projectId } =
+      parsed.data;
 
     const project = await prisma.project.findFirst({
       where: {

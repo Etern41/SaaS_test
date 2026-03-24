@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { taskUpdateSchema } from "@/lib/validations";
 
 export async function PATCH(
   req: NextRequest,
@@ -30,15 +31,24 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const updateData: Record<string, unknown> = {};
+    const parsed = taskUpdateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0].message },
+        { status: 400 }
+      );
+    }
 
-    if (body.title !== undefined) updateData.title = body.title.trim();
-    if (body.description !== undefined) updateData.description = body.description?.trim() || null;
-    if (body.status !== undefined) updateData.status = body.status;
-    if (body.priority !== undefined) updateData.priority = body.priority;
-    if (body.deadline !== undefined) updateData.deadline = body.deadline ? new Date(body.deadline) : null;
-    if (body.assigneeId !== undefined) updateData.assigneeId = body.assigneeId || null;
-    if (body.position !== undefined) updateData.position = body.position;
+    const updateData: Record<string, unknown> = {};
+    const d = parsed.data;
+
+    if (d.title !== undefined) updateData.title = d.title.trim();
+    if (d.description !== undefined) updateData.description = d.description?.trim() || null;
+    if (d.status !== undefined) updateData.status = d.status;
+    if (d.priority !== undefined) updateData.priority = d.priority;
+    if (d.deadline !== undefined) updateData.deadline = d.deadline ? new Date(d.deadline) : null;
+    if (d.assigneeId !== undefined) updateData.assigneeId = d.assigneeId || null;
+    if (d.position !== undefined) updateData.position = d.position;
 
     const updated = await prisma.task.update({
       where: { id: params.id },

@@ -29,6 +29,7 @@ export async function GET(
       tasks: {
         include: {
           assignee: { select: { id: true, name: true, email: true } },
+          _count: { select: { subtasks: true, comments: true, attachments: true } },
         },
         orderBy: { position: "asc" },
       },
@@ -68,7 +69,9 @@ export async function PATCH(
       where: { id: params.id },
       data: {
         ...(name && { name: name.trim() }),
-        ...(description !== undefined && { description: description?.trim() || null }),
+        ...(description !== undefined && {
+          description: description?.trim() || null,
+        }),
       },
     });
 
