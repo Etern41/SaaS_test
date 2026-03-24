@@ -4,53 +4,53 @@
 
 @layer base {
   :root {
-    --background: 40 33% 98.5%;
-    --foreground: 222 47% 11%;
-    --card: 40 40% 99.5%;
-    --card-foreground: 222 47% 11%;
-    --popover: 40 40% 99.5%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 250 84% 61%;
+    --background: 0 0% 98%;
+    --foreground: 220 15% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 10%;
+    --primary: 252 94% 67%;
     --primary-foreground: 0 0% 100%;
     --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary-foreground: 220 15% 10%;
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
-    --accent: 250 92% 97%;
-    --accent-foreground: 250 47% 35%;
+    --accent: 252 90% 96%;
+    --accent-foreground: 252 47% 35%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 90%;
-    --input: 220 13% 90%;
-    --ring: 250 84% 61%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 252 94% 67%;
     --radius: 0.5rem;
-    --kanban-column-bg: 220 14% 97%;
-    --kanban-column-border: 220 13% 91%;
+    --kanban-column-bg: 220 14% 96%;
+    --kanban-column-border: 220 13% 93%;
   }
 
   .dark {
-    --background: 222 20% 7%;
-    --foreground: 220 10% 90%;
-    --card: 222 20% 10%;
-    --card-foreground: 220 10% 90%;
-    --popover: 222 20% 10%;
-    --popover-foreground: 220 10% 90%;
-    --primary: 250 84% 61%;
+    --background: 225 8% 10%;
+    --foreground: 220 8% 86%;
+    --card: 225 8% 13%;
+    --card-foreground: 220 8% 86%;
+    --popover: 225 10% 14%;
+    --popover-foreground: 220 8% 86%;
+    --primary: 252 80% 65%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 15% 16%;
-    --secondary-foreground: 220 10% 90%;
-    --muted: 220 15% 16%;
-    --muted-foreground: 220 9% 55%;
-    --accent: 250 30% 16%;
-    --accent-foreground: 250 80% 80%;
+    --secondary: 225 7% 17%;
+    --secondary-foreground: 220 8% 84%;
+    --muted: 225 7% 17%;
+    --muted-foreground: 220 5% 50%;
+    --accent: 252 14% 19%;
+    --accent-foreground: 252 55% 72%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 15% 20%;
-    --input: 220 15% 20%;
-    --ring: 250 84% 61%;
+    --border: 225 6% 20%;
+    --input: 225 6% 21%;
+    --ring: 252 80% 65%;
     --radius: 0.5rem;
-    --kanban-column-bg: 222 18% 12%;
-    --kanban-column-border: 220 15% 20%;
+    --kanban-column-bg: 225 8% 12%;
+    --kanban-column-border: 225 6% 18%;
   }
 }
 
@@ -65,34 +65,45 @@
 
 @layer utilities {
   .kanban-column {
-    @apply flex min-h-[min(70vh,36rem)] min-w-[17.5rem] max-w-[20rem] flex-col rounded-xl border shadow-sm;
+    @apply flex flex-col rounded-lg;
+    min-width: 272px;
+    max-width: 304px;
+    min-height: min(70vh, 36rem);
     background: hsl(var(--kanban-column-bg));
-    border-color: hsl(var(--kanban-column-border));
     overflow: visible;
   }
 
-  .kanban-column-header {
-    @apply flex shrink-0 items-center justify-between gap-2 border-b px-3 py-2.5 text-sm font-semibold tracking-tight;
-    border-color: hsl(var(--kanban-column-border) / 0.85);
-  }
-
   .kanban-column-scroll {
-    @apply flex flex-1 flex-col gap-2 overflow-y-auto px-2.5 py-2;
+    @apply flex flex-1 flex-col gap-2 overflow-y-auto px-1.5 py-1.5;
     overflow-x: clip;
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.2) transparent;
   }
 
   .kanban-column-scroll::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
   }
 
   .kanban-column-scroll::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-muted-foreground/30;
+    @apply rounded-full bg-muted-foreground/15;
   }
 
   .kanban-card-surface {
-    @apply rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-150 ease-out hover:shadow-md hover:-translate-y-0.5;
-    border-color: hsl(var(--border) / 0.9);
+    @apply rounded-md bg-card text-card-foreground transition-all duration-150 ease-out;
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  }
+
+  .kanban-card-surface:hover {
+    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.08);
+    transform: translateY(-1px);
+  }
+
+  .dark .kanban-card-surface {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.15);
+  }
+
+  .dark .kanban-card-surface:hover {
+    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.25);
   }
 }

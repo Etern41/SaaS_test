@@ -26,15 +26,7 @@ interface Task {
   _count?: { subtasks: number; comments: number; attachments: number };
 }
 
-export default function KanbanColumn({
-  id,
-  title,
-  color,
-  borderColor,
-  tasks,
-  activeTaskId,
-  onTaskClick,
-}: {
+export default function KanbanColumn(props: {
   id: TaskStatus;
   title: string;
   color: string;
@@ -43,6 +35,7 @@ export default function KanbanColumn({
   activeTaskId: string | null;
   onTaskClick: (task: Task) => void;
 }) {
+  const { id, title, color, tasks, activeTaskId, onTaskClick } = props;
   const { setNodeRef, isOver } = useDroppable({ id });
   const visibleTasks = tasks.filter((t) => t.id !== activeTaskId);
 
@@ -50,20 +43,18 @@ export default function KanbanColumn({
     <div
       ref={setNodeRef}
       className={cn(
-        "kanban-column border-t-2 transition-all duration-150",
-        borderColor,
-        isOver && "ring-2 ring-primary/40 bg-primary/[0.03]"
+        "kanban-column transition-all duration-150",
+        isOver && "ring-1 ring-primary/20 bg-primary/[0.02]"
       )}
     >
-      <div className="kanban-column-header">
-        <div className="flex items-center gap-2">
-          <div className={cn("h-2.5 w-2.5 rounded-full", color)} />
-          <span>{title}</span>
-        </div>
-        <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-muted px-1.5 text-xs text-muted-foreground">
+      <div className="flex items-center gap-2 px-2 py-3">
+        <div className={cn("h-2 w-2 rounded-full shrink-0", color)} />
+        <span className="text-sm font-semibold text-foreground">{title}</span>
+        <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
           {visibleTasks.length}
         </span>
       </div>
+
       <div className="kanban-column-scroll">
         {visibleTasks.map((task) => (
           <TaskCard
@@ -73,10 +64,10 @@ export default function KanbanColumn({
           />
         ))}
         {isOver && (
-          <div className="rounded-lg border-2 border-dashed border-primary/30 bg-primary/[0.04] h-14 shrink-0" />
+          <div className="rounded-md border border-dashed border-primary/20 bg-primary/[0.03] h-12 shrink-0" />
         )}
         {visibleTasks.length === 0 && !isOver && (
-          <div className="flex flex-1 items-center justify-center py-8 text-xs text-muted-foreground">
+          <div className="flex flex-1 items-center justify-center py-8 text-sm text-muted-foreground">
             Нет задач
           </div>
         )}

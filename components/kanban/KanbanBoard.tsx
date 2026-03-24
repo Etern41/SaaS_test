@@ -60,12 +60,14 @@ export default function KanbanBoard({
   onTaskUpdated,
   onTaskDeleted,
   onTasksChange,
+  onCountsChanged,
 }: {
   tasks: Task[];
   members: Member[];
   onTaskUpdated: (task: Task) => void;
   onTaskDeleted: (taskId: string) => void;
   onTasksChange: (tasks: Task[]) => void;
+  onCountsChanged: (taskId: string, counts: { subtasks: number; comments: number; attachments: number }) => void;
 }) {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -166,6 +168,7 @@ export default function KanbanBoard({
             onTaskDeleted(taskId);
             setEditingTask(null);
           }}
+          onCountsChanged={onCountsChanged}
         />
       )}
     </>

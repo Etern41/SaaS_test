@@ -76,7 +76,11 @@ export default function ProjectPage() {
 
   const handleTaskUpdated = useCallback((updated: Task) => {
     setTasks((prev) =>
-      prev.map((t) => (t.id === updated.id ? { ...updated, _count: t._count } : t))
+      prev.map((t) =>
+        t.id === updated.id
+          ? { ...updated, _count: updated._count ?? t._count }
+          : t
+      )
     );
   }, []);
 
@@ -87,6 +91,15 @@ export default function ProjectPage() {
   const handleTasksChange = useCallback((newTasks: Task[]) => {
     setTasks(newTasks);
   }, []);
+
+  const handleCountsChanged = useCallback(
+    (taskId: string, counts: { subtasks: number; comments: number; attachments: number }) => {
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, _count: counts } : t))
+      );
+    },
+    []
+  );
 
   if (loading) {
     return (
@@ -165,6 +178,7 @@ export default function ProjectPage() {
         onTaskUpdated={handleTaskUpdated}
         onTaskDeleted={handleTaskDeleted}
         onTasksChange={handleTasksChange}
+        onCountsChanged={handleCountsChanged}
       />
 
       <CreateTaskModal

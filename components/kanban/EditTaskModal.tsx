@@ -55,11 +55,12 @@ interface Attachment { id: string; name: string; url: string; createdAt: string 
 type TabId = "details" | "subtasks" | "comments" | "attachments";
 
 export default function EditTaskModal({
-  open, onClose, task, members, onTaskUpdated, onTaskDeleted,
+  open, onClose, task, members, onTaskUpdated, onTaskDeleted, onCountsChanged,
 }: {
   open: boolean; onClose: () => void; task: Task; members: Member[];
   onTaskUpdated: (task: Task) => void;
   onTaskDeleted: (taskId: string) => void;
+  onCountsChanged?: (taskId: string, counts: { subtasks: number; comments: number; attachments: number }) => void;
 }) {
   const [tab, setTab] = useState<TabId>("details");
   const [loading, setLoading] = useState(false);
@@ -133,7 +134,10 @@ export default function EditTaskModal({
         toast.error(d.error || "Ошибка сохранения");
       } else {
         const updated: Task = await res.json();
-        onTaskUpdated({ ...updated, _count: task._count });
+        onTaskUpdated({
+          ...updated,
+          _count: { subtasks: subtasks.length, comments: comments.length, attachments: attachments.length },
+        });
         toast.success("Задача обновлена");
       }
     } catch {
@@ -177,6 +181,7 @@ export default function EditTaskModal({
     const prevComments = comments;
     setComments((prev) => [...prev, optimisticComment]);
     setNewComment("");
+    onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: comments.length + 1, attachments: attachments.length });
 
     try {
       const res = await fetch(`/api/tasks/${task.id}/comments`, {
@@ -188,10 +193,12 @@ export default function EditTaskModal({
         setComments((prev) => prev.map((c) => (c.id === optimisticComment.id ? real : c)));
       } else {
         setComments(prevComments);
+        onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: prevComments.length, attachments: attachments.length });
         toast.error("Не удалось добавить комментарий");
       }
     } catch {
       setComments(prevComments);
+      onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: prevComments.length, attachments: attachments.length });
       toast.error("Ошибка сервера");
     } finally {
       setAddingComment(false);
@@ -201,14 +208,17 @@ export default function EditTaskModal({
   async function deleteComment(id: string) {
     const prev = comments;
     setComments((c) => c.filter((x) => x.id !== id));
+    onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: comments.length - 1, attachments: attachments.length });
     try {
       const res = await fetch(`/api/comments/${id}`, { method: "DELETE" });
       if (!res.ok) {
         setComments(prev);
+        onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: prev.length, attachments: attachments.length });
         toast.error("Не удалось удалить комментарий");
       }
     } catch {
       setComments(prev);
+      onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: prev.length, attachments: attachments.length });
       toast.error("Ошибка сервера");
     }
   }
@@ -224,6 +234,7 @@ export default function EditTaskModal({
     const prev = subtasks;
     setSubtasks((s) => [...s, optimistic]);
     setNewSubtask("");
+    onCountsChanged?.(task.id, { subtasks: subtasks.length + 1, comments: comments.length, attachments: attachments.length });
 
     try {
       const res = await fetch(`/api/tasks/${task.id}/subtasks`, {
@@ -235,10 +246,12 @@ export default function EditTaskModal({
         setSubtasks((s) => s.map((x) => (x.id === optimistic.id ? real : x)));
       } else {
         setSubtasks(prev);
+        onCountsChanged?.(task.id, { subtasks: prev.length, comments: comments.length, attachments: attachments.length });
         toast.error("Не удалось добавить подзадачу");
       }
     } catch {
       setSubtasks(prev);
+      onCountsChanged?.(task.id, { subtasks: prev.length, comments: comments.length, attachments: attachments.length });
       toast.error("Ошибка сервера");
     } finally {
       setAddingSubtask(false);
@@ -266,14 +279,17 @@ export default function EditTaskModal({
   async function deleteSubtask(id: string) {
     const prev = subtasks;
     setSubtasks((s) => s.filter((x) => x.id !== id));
+    onCountsChanged?.(task.id, { subtasks: subtasks.length - 1, comments: comments.length, attachments: attachments.length });
     try {
       const res = await fetch(`/api/subtasks/${id}`, { method: "DELETE" });
       if (!res.ok) {
         setSubtasks(prev);
+        onCountsChanged?.(task.id, { subtasks: prev.length, comments: comments.length, attachments: attachments.length });
         toast.error("Не удалось удалить подзадачу");
       }
     } catch {
       setSubtasks(prev);
+      onCountsChanged?.(task.id, { subtasks: prev.length, comments: comments.length, attachments: attachments.length });
       toast.error("Ошибка сервера");
     }
   }
@@ -290,6 +306,7 @@ export default function EditTaskModal({
     const prev = attachments;
     setAttachments((a) => [optimistic, ...a]);
     setAttachName(""); setAttachUrl("");
+    onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: comments.length, attachments: attachments.length + 1 });
 
     try {
       const res = await fetch(`/api/tasks/${task.id}/attachments`, {
@@ -301,10 +318,12 @@ export default function EditTaskModal({
         setAttachments((a) => a.map((x) => (x.id === optimistic.id ? real : x)));
       } else {
         setAttachments(prev);
+        onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: comments.length, attachments: prev.length });
         toast.error("Не удалось добавить вложение");
       }
     } catch {
       setAttachments(prev);
+      onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: comments.length, attachments: prev.length });
       toast.error("Ошибка сервера");
     } finally {
       setAddingAttach(false);
@@ -314,14 +333,17 @@ export default function EditTaskModal({
   async function deleteAttachment(id: string) {
     const prev = attachments;
     setAttachments((a) => a.filter((x) => x.id !== id));
+    onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: comments.length, attachments: attachments.length - 1 });
     try {
       const res = await fetch(`/api/attachments/${id}`, { method: "DELETE" });
       if (!res.ok) {
         setAttachments(prev);
+        onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: comments.length, attachments: prev.length });
         toast.error("Не удалось удалить вложение");
       }
     } catch {
       setAttachments(prev);
+      onCountsChanged?.(task.id, { subtasks: subtasks.length, comments: comments.length, attachments: prev.length });
       toast.error("Ошибка сервера");
     }
   }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Calendar, MessageSquare, CheckSquare, Paperclip } from "lucide-react";
 import { format, isPast } from "date-fns";
@@ -10,11 +9,27 @@ import { cn } from "@/lib/utils";
 
 type Priority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
-const PRIORITY_STYLES: Record<Priority, { label: string; className: string; border: string }> = {
-  LOW: { label: "Низкий", className: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700", border: "border-l-slate-300 dark:border-l-slate-600" },
-  MEDIUM: { label: "Средний", className: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800", border: "border-l-blue-400 dark:border-l-blue-500" },
-  HIGH: { label: "Высокий", className: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800", border: "border-l-orange-400 dark:border-l-orange-500" },
-  URGENT: { label: "Срочный", className: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800", border: "border-l-red-500 dark:border-l-red-500" },
+const PRIORITY_STYLES: Record<Priority, { label: string; light: string; dark: string }> = {
+  LOW: {
+    label: "Низкий",
+    light: "bg-zinc-100 text-zinc-600",
+    dark: "dark:bg-zinc-700/30 dark:text-zinc-400",
+  },
+  MEDIUM: {
+    label: "Средний",
+    light: "bg-blue-50 text-blue-700",
+    dark: "dark:bg-blue-500/15 dark:text-blue-400",
+  },
+  HIGH: {
+    label: "Высокий",
+    light: "bg-orange-50 text-orange-700",
+    dark: "dark:bg-orange-500/15 dark:text-orange-400",
+  },
+  URGENT: {
+    label: "Срочный",
+    light: "bg-red-50 text-red-700",
+    dark: "dark:bg-red-500/15 dark:text-red-400",
+  },
 };
 
 interface TaskAssignee { id: string; name: string; email: string }
@@ -44,72 +59,72 @@ function CardContent({ task, isOverlay }: { task: Task; isOverlay?: boolean }) {
     task.deadline && isPast(new Date(task.deadline)) && task.status !== "DONE";
   const p = PRIORITY_STYLES[task.priority];
   const counts = task._count;
+  const hasCounters =
+    counts && (counts.subtasks > 0 || counts.comments > 0 || counts.attachments > 0);
 
   return (
     <div
       className={cn(
-        "kanban-card-surface cursor-grab select-none p-3 active:cursor-grabbing border-l-2",
-        p.border,
-        isOverlay && "shadow-xl ring-1 ring-primary/20 rotate-1",
-        isOverdue && "border-l-red-500 dark:border-l-red-500"
+        "kanban-card-surface cursor-grab select-none px-3 py-2.5 active:cursor-grabbing",
+        isOverlay && "shadow-xl ring-1 ring-primary/20 rotate-1"
       )}
     >
-      <div className="mb-1 text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+      <div className="mb-1 text-[10px] text-muted-foreground/50 uppercase tracking-wider">
         TASK-{task.id.slice(0, 6)}
       </div>
 
-      <h4 className="text-sm font-medium leading-snug line-clamp-2 mb-2">
+      <h4 className="text-sm font-medium leading-snug line-clamp-2 text-foreground">
         {task.title}
       </h4>
 
-      <div className="flex flex-wrap items-center gap-1.5 mb-2">
-        <Badge variant="outline" className={cn("text-[10px] px-2 py-0.5 rounded-full", p.className)}>
+      <div className="flex items-center gap-2 mt-2 flex-wrap">
+        <span className={cn("rounded-full text-[11px] font-medium px-2 py-0.5", p.light, p.dark)}>
           {p.label}
-        </Badge>
+        </span>
         {task.deadline && (
           <span
             className={cn(
-              "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px]",
+              "flex items-center gap-0.5 text-[11px]",
               isOverdue
-                ? "bg-red-100 text-red-700 font-medium dark:bg-red-950 dark:text-red-400"
-                : "bg-muted text-muted-foreground"
+                ? "text-red-500 font-medium"
+                : "text-muted-foreground"
             )}
           >
             <Calendar className="h-3 w-3" />
             {format(new Date(task.deadline), "d MMM", { locale: ru })}
           </span>
         )}
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          {counts && counts.subtasks > 0 && (
-            <span className="flex items-center gap-0.5 text-[10px]">
-              <CheckSquare className="h-3 w-3" />
-              {counts.subtasks}
-            </span>
-          )}
-          {counts && counts.comments > 0 && (
-            <span className="flex items-center gap-0.5 text-[10px]">
-              <MessageSquare className="h-3 w-3" />
-              {counts.comments}
-            </span>
-          )}
-          {counts && counts.attachments > 0 && (
-            <span className="flex items-center gap-0.5 text-[10px]">
-              <Paperclip className="h-3 w-3" />
-              {counts.attachments}
-            </span>
-          )}
-        </div>
         {task.assignee && (
-          <Avatar className="h-6 w-6" title={task.assignee.name}>
+          <Avatar className="h-5 w-5 ml-auto" title={task.assignee.name}>
             <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
               {task.assignee.name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         )}
       </div>
+
+      {hasCounters && (
+        <div className="flex items-center gap-3 mt-1.5 text-[11px] text-muted-foreground">
+          {counts.subtasks > 0 && (
+            <span className="flex items-center gap-0.5">
+              <CheckSquare className="h-3 w-3" />
+              {counts.subtasks}
+            </span>
+          )}
+          {counts.comments > 0 && (
+            <span className="flex items-center gap-0.5">
+              <MessageSquare className="h-3 w-3" />
+              {counts.comments}
+            </span>
+          )}
+          {counts.attachments > 0 && (
+            <span className="flex items-center gap-0.5">
+              <Paperclip className="h-3 w-3" />
+              {counts.attachments}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
