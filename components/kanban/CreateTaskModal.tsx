@@ -12,7 +12,24 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { LIMITS } from "@/lib/validations";
+
+interface TaskAssignee { id: string; name: string; email: string }
+
+interface Task {
+  id: string;
+  title: string;
+  description: string | null;
+  status: "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE";
+  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  deadline: string | null;
+  assigneeId: string | null;
+  assignee: TaskAssignee | null;
+  projectId: string;
+  position: number;
+  _count?: { subtasks: number; comments: number; attachments: number };
+}
 
 interface Member {
   id: string;
@@ -24,7 +41,7 @@ export default function CreateTaskModal({
   open, onClose, projectId, members, onCreated,
 }: {
   open: boolean; onClose: () => void; projectId: string;
-  members: Member[]; onCreated: () => void;
+  members: Member[]; onCreated: (task: Task) => void;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -48,7 +65,8 @@ export default function CreateTaskModal({
         body: JSON.stringify({
           title, description: description || null,
           deadline: deadline || null,
-          assigneeId: assigneeId || null, priority, projectId,
+          assigneeId: assigneeId && assigneeId !== "none" ? assigneeId : null,
+          priority, projectId,
         }),
       });
 
@@ -59,12 +77,20 @@ export default function CreateTaskModal({
         return;
       }
 
-      onCreated();
+      const newTask: Task = await res.json();
+      onCreated({
+        ...newTask,
+        _count: { subtasks: 0, comments: 0, attachments: 0 },
+      });
       onClose();
       setTitle(""); setDescription("");
       setAssigneeId(""); setPriority("MEDIUM");
-    } catch { setError("Ошибка сервера"); }
-    finally { setLoading(false); }
+    } catch {
+      setError("Ошибка сервера");
+      toast.error("Не удалось создать задачу");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

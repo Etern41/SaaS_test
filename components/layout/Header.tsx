@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -59,7 +60,7 @@ export function DashboardHeader({
 
   return (
     <>
-      <header className="z-30 flex h-14 shrink-0 items-center justify-between border-b border-border/80 bg-card/95 px-4 shadow-sm backdrop-blur-sm supports-[backdrop-filter]:bg-card/80">
+      <header className="z-30 flex h-14 shrink-0 items-center justify-between border-b bg-card/95 px-4 shadow-sm backdrop-blur-sm supports-[backdrop-filter]:bg-card/80">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <Button
             type="button"
@@ -109,7 +110,7 @@ export function DashboardHeader({
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <div className="hidden text-right text-sm sm:block">
             <p className="font-medium leading-tight text-foreground">{userName || "Пользователь"}</p>
             <p className="max-w-[12rem] truncate text-xs text-muted-foreground md:max-w-[16rem]">
@@ -121,6 +122,7 @@ export function DashboardHeader({
               {initial}
             </AvatarFallback>
           </Avatar>
+          <ThemeToggle />
           <Button
             type="button"
             variant="ghost"
@@ -135,7 +137,6 @@ export function DashboardHeader({
         </div>
       </header>
 
-      {/* Mobile nav overlay */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 md:hidden" id="mobile-nav-overlay">
           <button
@@ -176,8 +177,8 @@ export function DashboardHeader({
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                       isActive
-                        ? "bg-white/12 text-white ring-1 ring-white/10"
-                        : "text-slate-400 hover:bg-white/5 hover:text-slate-100"
+                        ? "border-l-2 border-violet-400 bg-white/10 text-white"
+                        : "border-l-2 border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-100"
                     )}
                   >
                     <item.icon

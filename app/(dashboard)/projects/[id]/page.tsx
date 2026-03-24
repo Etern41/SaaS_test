@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Settings, ArrowLeft, Plus, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import KanbanBoard from "@/components/kanban/KanbanBoard";
 import CreateTaskModal from "@/components/kanban/CreateTaskModal";
@@ -50,6 +51,7 @@ export default function ProjectPage() {
   const params = useParams();
   const projectId = params.id as string;
   const [project, setProject] = useState<Project | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateTask, setShowCreateTask] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
@@ -57,8 +59,9 @@ export default function ProjectPage() {
   const fetchProject = useCallback(async () => {
     const res = await fetch(`/api/projects/${projectId}`);
     if (res.ok) {
-      const data = await res.json();
+      const data: Project = await res.json();
       setProject(data);
+      setTasks(data.tasks);
     }
     setLoading(false);
   }, [projectId]);
@@ -66,6 +69,24 @@ export default function ProjectPage() {
   useEffect(() => {
     fetchProject();
   }, [fetchProject]);
+
+  const handleTaskCreated = useCallback((newTask: Task) => {
+    setTasks((prev) => [...prev, newTask]);
+  }, []);
+
+  const handleTaskUpdated = useCallback((updated: Task) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === updated.id ? { ...updated, _count: t._count } : t))
+    );
+  }, []);
+
+  const handleTaskDeleted = useCallback((taskId: string) => {
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+  }, []);
+
+  const handleTasksChange = useCallback((newTasks: Task[]) => {
+    setTasks(newTasks);
+  }, []);
 
   if (loading) {
     return (
@@ -139,9 +160,11 @@ export default function ProjectPage() {
       </div>
 
       <KanbanBoard
-        tasks={project.tasks}
+        tasks={tasks}
         members={project.members}
-        onUpdate={fetchProject}
+        onTaskUpdated={handleTaskUpdated}
+        onTaskDeleted={handleTaskDeleted}
+        onTasksChange={handleTasksChange}
       />
 
       <CreateTaskModal
@@ -149,7 +172,10 @@ export default function ProjectPage() {
         onClose={() => setShowCreateTask(false)}
         projectId={project.id}
         members={project.members}
-        onCreated={fetchProject}
+        onCreated={(newTask) => {
+          handleTaskCreated(newTask);
+          toast.success("Задача создана");
+        }}
       />
 
       <AddMemberModal

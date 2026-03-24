@@ -34,7 +34,7 @@ export function DashboardSidebar({ userName }: { userName: string }) {
         </Link>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-0.5 p-3" aria-label="Основная навигация">
+      <nav className="flex flex-1 flex-col gap-0.5 overflow-visible p-3" aria-label="Основная навигация">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -45,8 +45,8 @@ export function DashboardSidebar({ userName }: { userName: string }) {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-white/12 text-white shadow-inner ring-1 ring-white/10"
-                  : "text-slate-400 hover:bg-white/5 hover:text-slate-100"
+                  ? "border-l-2 border-violet-400 bg-white/10 text-white shadow-inner"
+                  : "border-l-2 border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-100"
               )}
             >
               <item.icon

@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { LIMITS } from "@/lib/validations";
 
@@ -44,6 +45,7 @@ interface Task {
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   deadline: string | null; assigneeId: string | null;
   assignee: TaskAssignee | null; projectId: string; position: number;
+  _count?: { subtasks: number; comments: number; attachments: number };
 }
 interface Member { id: string; role: string; user: { id: string; name: string; email: string } }
 interface Comment { id: string; body: string; authorId: string; createdAt: string; author: { id: string; name: string; email: string } }
@@ -53,9 +55,11 @@ interface Attachment { id: string; name: string; url: string; createdAt: string 
 type TabId = "details" | "subtasks" | "comments" | "attachments";
 
 export default function EditTaskModal({
-  open, onClose, task, members, onUpdated,
+  open, onClose, task, members, onTaskUpdated, onTaskDeleted,
 }: {
-  open: boolean; onClose: () => void; task: Task; members: Member[]; onUpdated: () => void;
+  open: boolean; onClose: () => void; task: Task; members: Member[];
+  onTaskUpdated: (task: Task) => void;
+  onTaskDeleted: (taskId: string) => void;
 }) {
   const [tab, setTab] = useState<TabId>("details");
   const [loading, setLoading] = useState(false);
@@ -112,24 +116,32 @@ export default function EditTaskModal({
   async function handleSave() {
     setLoading(true);
     setError("");
+    const body = {
+      title, description: description || null, priority, status,
+      deadline: deadline || null,
+      assigneeId: assigneeId === "none" ? null : assigneeId,
+    };
     try {
       const res = await fetch(`/api/tasks/${task.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title, description: description || null, priority, status,
-          deadline: deadline || null,
-          assigneeId: assigneeId === "none" ? null : assigneeId,
-        }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const d = await res.json();
         setError(d.error || "Ошибка");
+        toast.error(d.error || "Ошибка сохранения");
       } else {
-        onUpdated();
+        const updated: Task = await res.json();
+        onTaskUpdated({ ...updated, _count: task._count });
+        toast.success("Задача обновлена");
       }
-    } catch { setError("Ошибка сервера"); }
-    finally { setLoading(false); }
+    } catch {
+      setError("Ошибка сервера");
+      toast.error("Ошибка сервера");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleDelete() {
@@ -137,73 +149,187 @@ export default function EditTaskModal({
     setDeleting(true);
     try {
       const res = await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
-      if (res.ok) onUpdated(); else setError("Ошибка удаления");
-    } catch { setError("Ошибка"); }
-    finally { setDeleting(false); }
+      if (res.ok) {
+        onTaskDeleted(task.id);
+        toast.success("Задача удалена");
+      } else {
+        setError("Ошибка удаления");
+        toast.error("Не удалось удалить задачу");
+      }
+    } catch {
+      setError("Ошибка");
+      toast.error("Ошибка сервера");
+    } finally {
+      setDeleting(false);
+    }
   }
 
   async function addComment() {
     if (!newComment.trim()) return;
     setAddingComment(true);
-    await fetch(`/api/tasks/${task.id}/comments`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ body: newComment }),
-    });
+    const optimisticComment: Comment = {
+      id: `temp-${Date.now()}`,
+      body: newComment,
+      authorId: "",
+      createdAt: new Date().toISOString(),
+      author: { id: "", name: "Вы", email: "" },
+    };
+    const prevComments = comments;
+    setComments((prev) => [...prev, optimisticComment]);
     setNewComment("");
-    setAddingComment(false);
-    fetchComments();
+
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/comments`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: optimisticComment.body }),
+      });
+      if (res.ok) {
+        const real: Comment = await res.json();
+        setComments((prev) => prev.map((c) => (c.id === optimisticComment.id ? real : c)));
+      } else {
+        setComments(prevComments);
+        toast.error("Не удалось добавить комментарий");
+      }
+    } catch {
+      setComments(prevComments);
+      toast.error("Ошибка сервера");
+    } finally {
+      setAddingComment(false);
+    }
   }
 
   async function deleteComment(id: string) {
-    await fetch(`/api/comments/${id}`, { method: "DELETE" });
-    fetchComments();
+    const prev = comments;
+    setComments((c) => c.filter((x) => x.id !== id));
+    try {
+      const res = await fetch(`/api/comments/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setComments(prev);
+        toast.error("Не удалось удалить комментарий");
+      }
+    } catch {
+      setComments(prev);
+      toast.error("Ошибка сервера");
+    }
   }
 
   async function addSubtask() {
     if (!newSubtask.trim()) return;
     setAddingSubtask(true);
-    await fetch(`/api/tasks/${task.id}/subtasks`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: newSubtask }),
-    });
+    const optimistic: Subtask = {
+      id: `temp-${Date.now()}`,
+      title: newSubtask,
+      done: false,
+    };
+    const prev = subtasks;
+    setSubtasks((s) => [...s, optimistic]);
     setNewSubtask("");
-    setAddingSubtask(false);
-    fetchSubtasks();
+
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/subtasks`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: optimistic.title }),
+      });
+      if (res.ok) {
+        const real: Subtask = await res.json();
+        setSubtasks((s) => s.map((x) => (x.id === optimistic.id ? real : x)));
+      } else {
+        setSubtasks(prev);
+        toast.error("Не удалось добавить подзадачу");
+      }
+    } catch {
+      setSubtasks(prev);
+      toast.error("Ошибка сервера");
+    } finally {
+      setAddingSubtask(false);
+    }
   }
 
   async function toggleSubtask(sub: Subtask) {
-    await fetch(`/api/subtasks/${sub.id}`, {
-      method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ done: !sub.done }),
-    });
-    fetchSubtasks();
+    const prev = subtasks;
+    setSubtasks((s) => s.map((x) => (x.id === sub.id ? { ...x, done: !x.done } : x)));
+    try {
+      const res = await fetch(`/api/subtasks/${sub.id}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ done: !sub.done }),
+      });
+      if (!res.ok) {
+        setSubtasks(prev);
+        toast.error("Не удалось обновить подзадачу");
+      }
+    } catch {
+      setSubtasks(prev);
+      toast.error("Ошибка сервера");
+    }
   }
 
   async function deleteSubtask(id: string) {
-    await fetch(`/api/subtasks/${id}`, { method: "DELETE" });
-    fetchSubtasks();
+    const prev = subtasks;
+    setSubtasks((s) => s.filter((x) => x.id !== id));
+    try {
+      const res = await fetch(`/api/subtasks/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setSubtasks(prev);
+        toast.error("Не удалось удалить подзадачу");
+      }
+    } catch {
+      setSubtasks(prev);
+      toast.error("Ошибка сервера");
+    }
   }
 
   async function addAttachment() {
     if (!attachName.trim() || !attachUrl.trim()) return;
     setAddingAttach(true);
-    await fetch(`/api/tasks/${task.id}/attachments`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: attachName, url: attachUrl }),
-    });
+    const optimistic: Attachment = {
+      id: `temp-${Date.now()}`,
+      name: attachName,
+      url: attachUrl,
+      createdAt: new Date().toISOString(),
+    };
+    const prev = attachments;
+    setAttachments((a) => [optimistic, ...a]);
     setAttachName(""); setAttachUrl("");
-    setAddingAttach(false);
-    fetchAttachments();
+
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/attachments`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: optimistic.name, url: optimistic.url }),
+      });
+      if (res.ok) {
+        const real: Attachment = await res.json();
+        setAttachments((a) => a.map((x) => (x.id === optimistic.id ? real : x)));
+      } else {
+        setAttachments(prev);
+        toast.error("Не удалось добавить вложение");
+      }
+    } catch {
+      setAttachments(prev);
+      toast.error("Ошибка сервера");
+    } finally {
+      setAddingAttach(false);
+    }
   }
 
   async function deleteAttachment(id: string) {
-    await fetch(`/api/attachments/${id}`, { method: "DELETE" });
-    fetchAttachments();
+    const prev = attachments;
+    setAttachments((a) => a.filter((x) => x.id !== id));
+    try {
+      const res = await fetch(`/api/attachments/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setAttachments(prev);
+        toast.error("Не удалось удалить вложение");
+      }
+    } catch {
+      setAttachments(prev);
+      toast.error("Ошибка сервера");
+    }
   }
 
   function copyId() {
     navigator.clipboard.writeText(task.id);
     setCopied(true);
+    toast.success("ID скопирован");
     setTimeout(() => setCopied(false), 1500);
   }
 

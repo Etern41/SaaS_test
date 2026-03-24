@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    /* Warm off-whites, crisp neutrals — ClickUp-adjacent polish */
     --background: 40 33% 98.5%;
     --foreground: 222 47% 11%;
     --card: 40 40% 99.5%;
@@ -25,9 +24,33 @@
     --input: 220 13% 90%;
     --ring: 250 84% 61%;
     --radius: 0.5rem;
-    /* Kanban-specific tokens */
     --kanban-column-bg: 220 14% 97%;
     --kanban-column-border: 220 13% 91%;
+  }
+
+  .dark {
+    --background: 222 20% 7%;
+    --foreground: 220 10% 90%;
+    --card: 222 20% 10%;
+    --card-foreground: 220 10% 90%;
+    --popover: 222 20% 10%;
+    --popover-foreground: 220 10% 90%;
+    --primary: 250 84% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 15% 16%;
+    --secondary-foreground: 220 10% 90%;
+    --muted: 220 15% 16%;
+    --muted-foreground: 220 9% 55%;
+    --accent: 250 30% 16%;
+    --accent-foreground: 250 80% 80%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 250 84% 61%;
+    --radius: 0.5rem;
+    --kanban-column-bg: 222 18% 12%;
+    --kanban-column-border: 220 15% 20%;
   }
 }
 
@@ -41,10 +64,11 @@
 }
 
 @layer utilities {
-  /* Kanban column shell — use on column wrappers */
   .kanban-column {
-    @apply flex min-h-[min(70vh,36rem)] min-w-[17.5rem] max-w-[20rem] flex-col rounded-xl border bg-[hsl(var(--kanban-column-bg))] shadow-sm;
+    @apply flex min-h-[min(70vh,36rem)] min-w-[17.5rem] max-w-[20rem] flex-col rounded-xl border shadow-sm;
+    background: hsl(var(--kanban-column-bg));
     border-color: hsl(var(--kanban-column-border));
+    overflow: visible;
   }
 
   .kanban-column-header {
@@ -53,7 +77,8 @@
   }
 
   .kanban-column-scroll {
-    @apply flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden p-2;
+    @apply flex flex-1 flex-col gap-2 overflow-y-auto px-2.5 py-2;
+    overflow-x: clip;
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
   }
@@ -67,7 +92,7 @@
   }
 
   .kanban-card-surface {
-    @apply rounded-lg border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md;
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-150 ease-out hover:shadow-md hover:-translate-y-0.5;
     border-color: hsl(var(--border) / 0.9);
   }
 }

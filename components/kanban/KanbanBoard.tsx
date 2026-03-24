@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -12,6 +12,7 @@ import {
   type CollisionDetection,
   rectIntersection,
 } from "@dnd-kit/core";
+import { toast } from "sonner";
 import KanbanColumn from "./KanbanColumn";
 import TaskCard from "./TaskCard";
 import EditTaskModal from "./EditTaskModal";
@@ -44,11 +45,11 @@ interface Member {
   user: { id: string; name: string; email: string };
 }
 
-const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
-  { id: "TODO", title: "К выполнению", color: "bg-slate-400" },
-  { id: "IN_PROGRESS", title: "В работе", color: "bg-blue-500" },
-  { id: "REVIEW", title: "На проверке", color: "bg-amber-500" },
-  { id: "DONE", title: "Готово", color: "bg-emerald-500" },
+const COLUMNS: { id: TaskStatus; title: string; color: string; borderColor: string }[] = [
+  { id: "TODO", title: "К выполнению", color: "bg-slate-400", borderColor: "border-t-slate-400" },
+  { id: "IN_PROGRESS", title: "В работе", color: "bg-blue-500", borderColor: "border-t-blue-500" },
+  { id: "REVIEW", title: "На проверке", color: "bg-amber-500", borderColor: "border-t-amber-500" },
+  { id: "DONE", title: "Готово", color: "bg-emerald-500", borderColor: "border-t-emerald-500" },
 ];
 
 const COLUMN_IDS = new Set<string>(COLUMNS.map((c) => c.id));
@@ -56,23 +57,19 @@ const COLUMN_IDS = new Set<string>(COLUMNS.map((c) => c.id));
 export default function KanbanBoard({
   tasks,
   members,
-  onUpdate,
+  onTaskUpdated,
+  onTaskDeleted,
+  onTasksChange,
 }: {
   tasks: Task[];
   members: Member[];
-  onUpdate: () => void;
+  onTaskUpdated: (task: Task) => void;
+  onTaskDeleted: (taskId: string) => void;
+  onTasksChange: (tasks: Task[]) => void;
 }) {
-  const [items, setItems] = useState<Task[]>(tasks);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const isDragging = useRef(false);
-  const pendingSave = useRef(false);
-
-  useEffect(() => {
-    if (!isDragging.current && !pendingSave.current) {
-      setItems(tasks);
-    }
-  }, [tasks]);
+  const snapshotRef = useRef<Task[]>([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -85,19 +82,18 @@ export default function KanbanBoard({
   }, []);
 
   function getTasksByStatus(status: TaskStatus) {
-    return items
+    return tasks
       .filter((t) => t.status === status)
       .sort((a, b) => a.position - b.position);
   }
 
   function handleDragStart(event: DragStartEvent) {
-    isDragging.current = true;
-    const task = items.find((t) => t.id === event.active.id);
+    snapshotRef.current = tasks;
+    const task = tasks.find((t) => t.id === event.active.id);
     if (task) setActiveTask(task);
   }
 
   async function handleDragEnd(event: DragEndEvent) {
-    isDragging.current = false;
     const { over } = event;
     const draggedTask = activeTask;
     setActiveTask(null);
@@ -110,22 +106,22 @@ export default function KanbanBoard({
     const targetStatus = overId as TaskStatus;
     if (targetStatus === draggedTask.status) return;
 
-    pendingSave.current = true;
-    setItems((prev) =>
-      prev.map((t) =>
+    onTasksChange(
+      tasks.map((t) =>
         t.id === draggedTask.id ? { ...t, status: targetStatus } : t
       )
     );
 
     try {
-      await fetch(`/api/tasks/${draggedTask.id}/status`, {
+      const res = await fetch(`/api/tasks/${draggedTask.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: targetStatus, position: 0 }),
       });
-    } finally {
-      pendingSave.current = false;
-      onUpdate();
+      if (!res.ok) throw new Error();
+    } catch {
+      onTasksChange(snapshotRef.current);
+      toast.error("Не удалось переместить задачу");
     }
   }
 
@@ -144,6 +140,7 @@ export default function KanbanBoard({
               id={col.id}
               title={col.title}
               color={col.color}
+              borderColor={col.borderColor}
               tasks={getTasksByStatus(col.id)}
               activeTaskId={activeTask?.id ?? null}
               onTaskClick={setEditingTask}
@@ -161,9 +158,13 @@ export default function KanbanBoard({
           onClose={() => setEditingTask(null)}
           task={editingTask}
           members={members}
-          onUpdated={() => {
+          onTaskUpdated={(updated) => {
+            onTaskUpdated(updated);
             setEditingTask(null);
-            onUpdate();
+          }}
+          onTaskDeleted={(taskId) => {
+            onTaskDeleted(taskId);
+            setEditingTask(null);
           }}
         />
       )}

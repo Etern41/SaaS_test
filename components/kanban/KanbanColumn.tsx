@@ -30,6 +30,7 @@ export default function KanbanColumn({
   id,
   title,
   color,
+  borderColor,
   tasks,
   activeTaskId,
   onTaskClick,
@@ -37,6 +38,7 @@ export default function KanbanColumn({
   id: TaskStatus;
   title: string;
   color: string;
+  borderColor: string;
   tasks: Task[];
   activeTaskId: string | null;
   onTaskClick: (task: Task) => void;
@@ -48,7 +50,8 @@ export default function KanbanColumn({
     <div
       ref={setNodeRef}
       className={cn(
-        "kanban-column transition-all duration-150",
+        "kanban-column border-t-2 transition-all duration-150",
+        borderColor,
         isOver && "ring-2 ring-primary/40 bg-primary/[0.03]"
       )}
     >

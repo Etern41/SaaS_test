@@ -10,11 +10,11 @@ import { cn } from "@/lib/utils";
 
 type Priority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
-const PRIORITY_STYLES: Record<Priority, { label: string; className: string }> = {
-  LOW: { label: "Низкий", className: "bg-slate-100 text-slate-600 border-slate-200" },
-  MEDIUM: { label: "Средний", className: "bg-blue-50 text-blue-700 border-blue-200" },
-  HIGH: { label: "Высокий", className: "bg-amber-50 text-amber-700 border-amber-200" },
-  URGENT: { label: "Срочный", className: "bg-red-50 text-red-700 border-red-200" },
+const PRIORITY_STYLES: Record<Priority, { label: string; className: string; border: string }> = {
+  LOW: { label: "Низкий", className: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700", border: "border-l-slate-300 dark:border-l-slate-600" },
+  MEDIUM: { label: "Средний", className: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800", border: "border-l-blue-400 dark:border-l-blue-500" },
+  HIGH: { label: "Высокий", className: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800", border: "border-l-orange-400 dark:border-l-orange-500" },
+  URGENT: { label: "Срочный", className: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800", border: "border-l-red-500 dark:border-l-red-500" },
 };
 
 interface TaskAssignee { id: string; name: string; email: string }
@@ -48,9 +48,10 @@ function CardContent({ task, isOverlay }: { task: Task; isOverlay?: boolean }) {
   return (
     <div
       className={cn(
-        "kanban-card-surface cursor-grab select-none p-3 active:cursor-grabbing",
+        "kanban-card-surface cursor-grab select-none p-3 active:cursor-grabbing border-l-2",
+        p.border,
         isOverlay && "shadow-xl ring-1 ring-primary/20 rotate-1",
-        isOverdue && "border-red-200 bg-red-50/40"
+        isOverdue && "border-l-red-500 dark:border-l-red-500"
       )}
     >
       <div className="mb-1 text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider">
@@ -62,15 +63,15 @@ function CardContent({ task, isOverlay }: { task: Task; isOverlay?: boolean }) {
       </h4>
 
       <div className="flex flex-wrap items-center gap-1.5 mb-2">
-        <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", p.className)}>
+        <Badge variant="outline" className={cn("text-[10px] px-2 py-0.5 rounded-full", p.className)}>
           {p.label}
         </Badge>
         {task.deadline && (
           <span
             className={cn(
-              "inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px]",
+              "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px]",
               isOverdue
-                ? "bg-red-100 text-red-700 font-medium"
+                ? "bg-red-100 text-red-700 font-medium dark:bg-red-950 dark:text-red-400"
                 : "bg-muted text-muted-foreground"
             )}
           >
