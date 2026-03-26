@@ -137,118 +137,147 @@ export default function ProjectPage() {
   }
 
   return (
-    <div className="flex flex-col h-full -m-4 md:-m-6">
+    <div className="flex h-full min-h-0 min-w-0 w-full max-w-full flex-col">
       {/* Project sub-header */}
-      <div className="border-b bg-card px-4 py-2 flex items-center gap-4 flex-wrap">
-        <div className="flex gap-1">
-          <button className="px-3 py-1.5 text-sm rounded-md bg-primary/10 text-primary font-medium">
-            <LayoutGrid className="inline h-3.5 w-3.5 mr-1 -mt-0.5" />
-            Доска
-          </button>
-          <button className="px-3 py-1.5 text-sm rounded-md text-muted-foreground opacity-50 cursor-not-allowed" disabled>
-            <List className="inline h-3.5 w-3.5 mr-1 -mt-0.5" />
-            Список
-          </button>
-          <button className="px-3 py-1.5 text-sm rounded-md text-muted-foreground opacity-50 cursor-not-allowed" disabled>
-            <CalendarDays className="inline h-3.5 w-3.5 mr-1 -mt-0.5" />
-            Календарь
-          </button>
-        </div>
-        <div className="h-4 w-px bg-border mx-1 hidden sm:block" />
-        <Select value={assigneeFilter} onValueChange={(v) => setAssigneeFilter(v)}>
-          <SelectTrigger
-            className={cn(
-              "flex h-8 w-auto min-w-[9rem] max-w-[12rem] border-none shadow-none gap-1.5 px-2 py-1 text-sm",
-              assigneeFilter === "all"
-                ? "text-muted-foreground hover:text-foreground hover:bg-muted"
-                : "text-foreground bg-primary/10 font-medium"
-            )}
-            aria-label="Фильтр по исполнителю"
-          >
-            <User className="h-3.5 w-3.5 shrink-0" />
-            <SelectValue placeholder="Исполнитель" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Все исполнители</SelectItem>
-            <SelectItem value="none">Без исполнителя</SelectItem>
-            {project.members.map((m) => (
-              <SelectItem key={m.user.id} value={m.user.id}>
-                {m.user.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as "all" | Task["priority"])}>
-          <SelectTrigger
-            className={cn(
-              "flex h-8 w-auto min-w-[8.5rem] border-none shadow-none gap-1.5 px-2 py-1 text-sm",
-              priorityFilter === "all"
-                ? "text-muted-foreground hover:text-foreground hover:bg-muted"
-                : "text-foreground bg-primary/10 font-medium"
-            )}
-            aria-label="Фильтр по приоритету"
-          >
-            <Flag className="h-3.5 w-3.5 shrink-0" />
-            <SelectValue placeholder="Приоритет" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Любой приоритет</SelectItem>
-            <SelectItem value="LOW">Низкий</SelectItem>
-            <SelectItem value="MEDIUM">Средний</SelectItem>
-            <SelectItem value="HIGH">Высокий</SelectItem>
-            <SelectItem value="URGENT">Срочный</SelectItem>
-          </SelectContent>
-        </Select>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="flex -space-x-2 mr-1">
-            {project.members.slice(0, 4).map((m) => (
-              <Avatar
-                key={m.id}
-                className="h-6 w-6 border-2 border-card"
-                title={m.user.name}
-              >
-                <AvatarFallback className="text-[9px] bg-primary/10 text-primary">
-                  {m.user.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            ))}
-            {project.members.length > 4 && (
-              <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-muted text-[9px] text-muted-foreground">
-                +{project.members.length - 4}
-              </span>
-            )}
+      <div className="border-b bg-card">
+        <div className="flex flex-col gap-2 px-2 py-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2 sm:px-4 sm:py-2">
+          <div className="flex shrink-0 gap-0.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:pb-0 [&::-webkit-scrollbar]:hidden">
+            <button
+              type="button"
+              className="shrink-0 whitespace-nowrap rounded-md bg-primary/10 px-2 py-1.5 text-xs font-medium text-primary sm:px-3 sm:text-sm"
+            >
+              <LayoutGrid className="mr-1 inline h-3.5 w-3.5 align-text-bottom" />
+              Доска
+            </button>
+            <button
+              type="button"
+              className="shrink-0 whitespace-nowrap rounded-md px-2 py-1.5 text-xs text-muted-foreground opacity-50 sm:px-3 sm:text-sm"
+              disabled
+            >
+              <List className="mr-1 inline h-3.5 w-3.5 align-text-bottom" />
+              Список
+            </button>
+            <button
+              type="button"
+              className="shrink-0 whitespace-nowrap rounded-md px-2 py-1.5 text-xs text-muted-foreground opacity-50 sm:px-3 sm:text-sm"
+              disabled
+            >
+              <CalendarDays className="mr-1 inline h-3.5 w-3.5 align-text-bottom" />
+              Календарь
+            </button>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-xs"
-            onClick={() => setShowAddMember(true)}
-          >
-            <UserPlus className="mr-1 h-3 w-3" />
-            Участник
-          </Button>
-          <Button size="sm" className="h-7 text-xs" onClick={() => { setCreateTaskStatus(undefined); setShowCreateTask(true); }}>
-            <Plus className="mr-1 h-3 w-3" />
-            Задача
-          </Button>
-          <Link href={`/projects/${project.id}/settings`}>
-            <Button variant="ghost" size="icon" className="h-7 w-7">
-              <Settings className="h-3.5 w-3.5" />
+
+          <div className="hidden h-4 w-px shrink-0 bg-border sm:block" />
+
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+            <Select value={assigneeFilter} onValueChange={(v) => setAssigneeFilter(v)}>
+              <SelectTrigger
+                className={cn(
+                  "h-8 min-w-0 flex-1 border border-transparent shadow-none sm:max-w-[11rem] sm:flex-none sm:border-none",
+                  assigneeFilter === "all"
+                    ? "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    : "bg-primary/10 font-medium text-foreground"
+                )}
+                aria-label="Фильтр по исполнителю"
+              >
+                <User className="h-3.5 w-3.5 shrink-0" />
+                <SelectValue placeholder="Исполнитель" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все исполнители</SelectItem>
+                <SelectItem value="none">Без исполнителя</SelectItem>
+                {project.members.map((m) => (
+                  <SelectItem key={m.user.id} value={m.user.id}>
+                    {m.user.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as "all" | Task["priority"])}>
+              <SelectTrigger
+                className={cn(
+                  "h-8 min-w-0 flex-1 border border-transparent shadow-none sm:max-w-[10rem] sm:flex-none sm:border-none",
+                  priorityFilter === "all"
+                    ? "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    : "bg-primary/10 font-medium text-foreground"
+                )}
+                aria-label="Фильтр по приоритету"
+              >
+                <Flag className="h-3.5 w-3.5 shrink-0" />
+                <SelectValue placeholder="Приоритет" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Любой приоритет</SelectItem>
+                <SelectItem value="LOW">Низкий</SelectItem>
+                <SelectItem value="MEDIUM">Средний</SelectItem>
+                <SelectItem value="HIGH">Высокий</SelectItem>
+                <SelectItem value="URGENT">Срочный</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:ml-auto sm:gap-2">
+            <div className="mr-0.5 hidden min-w-0 -space-x-2 sm:flex">
+              {project.members.slice(0, 4).map((m) => (
+                <Avatar
+                  key={m.id}
+                  className="h-6 w-6 border-2 border-card"
+                  title={m.user.name}
+                >
+                  <AvatarFallback className="text-[9px] bg-primary/10 text-primary">
+                    {m.user.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              ))}
+              {project.members.length > 4 && (
+                <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-muted text-[9px] text-muted-foreground">
+                  +{project.members.length - 4}
+                </span>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 shrink-0 px-2 text-xs sm:h-7 sm:px-3"
+              onClick={() => setShowAddMember(true)}
+              title="Добавить участника"
+            >
+              <UserPlus className="h-3.5 w-3.5 sm:mr-1" />
+              <span className="hidden sm:inline">Участник</span>
             </Button>
-          </Link>
+            <Button
+              size="sm"
+              className="h-8 shrink-0 px-2 text-xs sm:h-7 sm:px-3"
+              onClick={() => {
+                setCreateTaskStatus(undefined);
+                setShowCreateTask(true);
+              }}
+              title="Новая задача"
+            >
+              <Plus className="h-3.5 w-3.5 sm:mr-1" />
+              <span className="hidden sm:inline">Задача</span>
+            </Button>
+            <Link href={`/projects/${project.id}/settings`} className="shrink-0">
+              <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-7 sm:w-7" title="Настройки">
+                <Settings className="h-3.5 w-3.5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Project name bar */}
-      <div className="px-4 py-2 flex items-center gap-2">
-        <h1 className="text-base font-semibold">{project.name}</h1>
+      <div className="flex min-w-0 items-start gap-2 px-2 py-2 sm:px-4">
+        <h1 className="min-w-0 truncate text-sm font-semibold sm:text-base">{project.name}</h1>
         {project.description && (
-          <span className="text-xs text-muted-foreground hidden sm:inline">— {project.description}</span>
+          <span className="hidden min-w-0 truncate text-xs text-muted-foreground sm:inline sm:max-w-[50%]">
+            — {project.description}
+          </span>
         )}
       </div>
 
       {/* Kanban board */}
-      <div className="flex-1 min-h-0 kanban-board-bg px-4 py-3 overflow-hidden">
+      <div className="min-h-0 min-w-0 flex-1 overflow-hidden kanban-board-bg px-2 py-2 sm:px-4 sm:py-3">
         <KanbanBoard
           tasks={tasks}
           members={project.members}
@@ -264,7 +293,10 @@ export default function ProjectPage() {
 
       <CreateTaskModal
         open={showCreateTask}
-        onClose={() => { setShowCreateTask(false); setCreateTaskStatus(undefined); }}
+        onClose={() => {
+          setShowCreateTask(false);
+          setCreateTaskStatus(undefined);
+        }}
         projectId={project.id}
         members={project.members}
         defaultStatus={createTaskStatus}

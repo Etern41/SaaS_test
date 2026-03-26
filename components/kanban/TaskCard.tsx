@@ -61,7 +61,7 @@ function CardContent({ task, isOverlay }: { task: Task; isOverlay?: boolean }) {
   return (
     <div
       className={cn(
-        "kanban-card-surface cursor-grab select-none px-3 py-2.5 active:cursor-grabbing",
+        "kanban-card-surface touch-manipulation cursor-grab select-none px-3 py-2.5 active:cursor-grabbing",
         isOverlay && "shadow-xl ring-1 ring-primary/20 rotate-1"
       )}
     >

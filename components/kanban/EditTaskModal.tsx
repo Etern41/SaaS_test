@@ -348,13 +348,16 @@ export default function EditTaskModal({
   const doneCount = subtasks.filter((s) => s.done).length;
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-[780px] max-w-[90vw] p-0 flex flex-col md:flex-row h-full">
+    <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
+      <SheetContent
+        side="right"
+        className="flex h-full max-h-[100dvh] w-full max-w-full flex-col overflow-hidden p-0 md:w-[min(780px,calc(100vw-0.5rem))] md:max-w-[90vw] md:flex-row"
+      >
         <SheetTitle className="sr-only">Задача {taskShortId}</SheetTitle>
         <SheetDescription className="sr-only">Панель редактирования задачи</SheetDescription>
 
         {/* LEFT: Main content */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 min-w-0">
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
           {error && (
             <div className="mb-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
           )}
@@ -412,7 +415,7 @@ export default function EditTaskModal({
           </div>
 
           {/* Fields grid */}
-          <div className="grid grid-cols-2 gap-4 mt-5">
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Исполнитель</Label>
               <Select value={assigneeId} onValueChange={setAssigneeId}>
@@ -531,7 +534,7 @@ export default function EditTaskModal({
                 </div>
               ))}
             </div>
-            <div className="mt-2 grid grid-cols-[1fr_1fr_auto] gap-2">
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_auto]">
               <Input placeholder="Название" value={attachName} onChange={(e) => setAttachName(e.target.value)} maxLength={LIMITS.ATTACHMENT_NAME} className="text-sm h-8" />
               <Input placeholder="https://..." value={attachUrl} onChange={(e) => setAttachUrl(e.target.value)} maxLength={LIMITS.ATTACHMENT_URL} className="text-sm h-8" />
               <Button size="sm" variant="ghost" onClick={addAttachment} disabled={addingAttach || !attachName.trim() || !attachUrl.trim()} className="h-8 px-2">
@@ -541,14 +544,14 @@ export default function EditTaskModal({
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 mt-8 pt-4 border-t">
-            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
+          <div className="mt-8 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:gap-2">
+            <Button variant="destructive" size="sm" className="w-full sm:w-auto" onClick={handleDelete} disabled={deleting}>
               <Trash2 className="mr-1 h-3.5 w-3.5" />
               {deleting ? "Удаление..." : "Удалить"}
             </Button>
-            <div className="ml-auto flex gap-2">
-              <Button variant="outline" size="sm" onClick={onClose}>Отмена</Button>
-              <Button size="sm" onClick={handleSave} disabled={loading || !title.trim()}>
+            <div className="flex w-full gap-2 sm:ml-auto sm:w-auto">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={onClose}>Отмена</Button>
+              <Button size="sm" className="flex-1 sm:flex-none" onClick={handleSave} disabled={loading || !title.trim()}>
                 {loading ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />Сохранение...</> : "Сохранить"}
               </Button>
             </div>
@@ -556,7 +559,7 @@ export default function EditTaskModal({
         </div>
 
         {/* RIGHT: Activity / Comments */}
-        <div className="w-full md:w-72 border-t md:border-t-0 md:border-l bg-muted/30 flex flex-col overflow-hidden">
+        <div className="flex max-h-[42vh] min-h-0 w-full shrink-0 flex-col overflow-hidden border-t bg-muted/30 md:max-h-none md:w-72 md:border-l md:border-t-0">
           <div className="px-4 py-3 border-b">
             <h3 className="text-sm font-semibold">Активность</h3>
           </div>

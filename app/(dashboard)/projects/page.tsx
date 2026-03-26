@@ -51,16 +51,16 @@ export default function ProjectsPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Проекты</h1>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Проекты</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {projects.length > 0
               ? `${projects.length} ${projects.length === 1 ? "проект" : "проектов"}`
               : "Создайте первый проект"}
           </p>
         </div>
-        <Button onClick={() => setShowCreate(true)}>
+        <Button className="w-full shrink-0 sm:w-auto" onClick={() => setShowCreate(true)}>
           <Plus className="mr-1.5 h-4 w-4" />
           Новый проект
         </Button>

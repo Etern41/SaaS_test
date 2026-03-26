@@ -101,7 +101,7 @@ export default function CreateTaskModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Новая задача</DialogTitle>
@@ -120,7 +120,7 @@ export default function CreateTaskModal({
             <Label>Описание</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание (необязательно)" maxLength={LIMITS.TASK_DESCRIPTION} rows={3} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Статус</Label>
               <Select value={statusValue} onValueChange={setStatusValue}>
@@ -146,11 +146,9 @@ export default function CreateTaskModal({
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Дедлайн</Label>
-              <Input name="deadline" type="date" />
-            </div>
+          <div className="space-y-2">
+            <Label>Дедлайн</Label>
+            <Input name="deadline" type="date" className="w-full sm:max-w-[12rem]" />
           </div>
           <div className="space-y-2">
             <Label>Исполнитель</Label>
@@ -164,9 +162,9 @@ export default function CreateTaskModal({
               </SelectContent>
             </Select>
           </div>
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>Отмена</Button>
-            <Button type="submit" disabled={loading || !title.trim()}>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onClose}>Отмена</Button>
+            <Button type="submit" className="w-full sm:w-auto" disabled={loading || !title.trim()}>
               {loading ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" />Создание...</> : "Создать"}
             </Button>
           </div>

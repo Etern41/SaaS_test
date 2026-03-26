@@ -150,7 +150,7 @@ export default function KanbanBoard({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-3 overflow-x-auto pb-4 flex-1 min-h-0">
+        <div className="flex min-h-0 min-w-0 flex-1 gap-2 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-2 touch-pan-x sm:gap-3 sm:pb-4 [scrollbar-gutter:stable]">
           {COLUMNS.map((col) => (
             <KanbanColumn
               key={col.id}

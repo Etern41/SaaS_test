@@ -75,13 +75,13 @@ export default function AnalyticsPage() {
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Аналитика</h1>
-          <p className="text-muted-foreground">Статистика по проекту</p>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold sm:text-2xl">Аналитика</h1>
+          <p className="text-sm text-muted-foreground sm:text-base">Статистика по проекту</p>
         </div>
         <Select value={selectedProject} onValueChange={setSelectedProject}>
-          <SelectTrigger className="w-[250px]">
+          <SelectTrigger className="w-full min-w-0 sm:w-[250px]">
             <SelectValue placeholder="Выберите проект" />
           </SelectTrigger>
           <SelectContent>
