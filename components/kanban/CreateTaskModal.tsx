@@ -120,11 +120,11 @@ export default function CreateTaskModal({
             <Label>Описание</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание (необязательно)" maxLength={LIMITS.TASK_DESCRIPTION} rows={3} />
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
+            <div className="min-w-0 space-y-2">
               <Label>Статус</Label>
               <Select value={statusValue} onValueChange={setStatusValue}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full min-w-0"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="TODO">К выполнению</SelectItem>
                   <SelectItem value="IN_PROGRESS">В работе</SelectItem>
@@ -133,10 +133,10 @@ export default function CreateTaskModal({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Приоритет</Label>
               <Select value={priority} onValueChange={setPriority}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full min-w-0"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="LOW">Низкий</SelectItem>
                   <SelectItem value="MEDIUM">Средний</SelectItem>
@@ -146,14 +146,14 @@ export default function CreateTaskModal({
               </Select>
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <Label>Дедлайн</Label>
-            <Input name="deadline" type="date" className="w-full sm:max-w-[12rem]" />
+            <Input name="deadline" type="date" className="w-full min-w-0 font-sans tabular-nums" />
           </div>
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <Label>Исполнитель</Label>
             <Select value={assigneeId} onValueChange={setAssigneeId}>
-              <SelectTrigger><SelectValue placeholder="Выберите исполнителя" /></SelectTrigger>
+              <SelectTrigger className="w-full min-w-0"><SelectValue placeholder="Выберите исполнителя" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Без исполнителя</SelectItem>
                 {members.map((m) => (

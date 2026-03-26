@@ -178,15 +178,15 @@ export default function ProjectSettingsPage() {
             {project.members.map((m) => (
               <div
                 key={m.id}
-                className="flex items-center justify-between rounded-lg border p-3"
+                className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between"
               >
-                <div>
-                  <p className="font-medium">{m.user.name}</p>
-                  <p className="text-sm text-muted-foreground">
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{m.user.name}</p>
+                  <p className="truncate text-sm text-muted-foreground">
                     {m.user.email}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
                   <Badge variant={m.role === "OWNER" ? "default" : "secondary"}>
                     {m.role === "OWNER" ? "Владелец" : "Участник"}
                   </Badge>

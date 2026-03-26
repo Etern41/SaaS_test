@@ -415,11 +415,11 @@ export default function EditTaskModal({
           </div>
 
           {/* Fields grid */}
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
+            <div className="min-w-0 space-y-1.5">
               <Label className="text-xs text-muted-foreground">Исполнитель</Label>
               <Select value={assigneeId} onValueChange={setAssigneeId}>
-                <SelectTrigger className="h-9"><SelectValue placeholder="Выберите" /></SelectTrigger>
+                <SelectTrigger className="h-9 w-full min-w-0"><SelectValue placeholder="Выберите" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Без исполнителя</SelectItem>
                   {members.map((m) => (
@@ -428,9 +428,14 @@ export default function EditTaskModal({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
+            <div className="min-w-0 space-y-1.5">
               <Label className="text-xs text-muted-foreground">Дедлайн</Label>
-              <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="h-9" />
+              <Input
+                type="date"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+                className="h-9 w-full min-w-0 font-sans tabular-nums"
+              />
             </div>
           </div>
 

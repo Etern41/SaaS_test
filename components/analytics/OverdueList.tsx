@@ -31,9 +31,9 @@ export default function OverdueList({ tasks }: { tasks: OverdueTask[] }) {
       {tasks.map((task) => (
         <div
           key={task.id}
-          className="flex items-center gap-3 rounded-lg border border-red-100 bg-red-50/50 p-3"
+          className="flex flex-col gap-2 rounded-lg border border-red-100 bg-red-50/50 p-3 sm:flex-row sm:items-center sm:gap-3"
         >
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-0.5">
               <span className="text-[10px] font-mono text-muted-foreground">
                 TASK-{task.id.slice(0, 6).toUpperCase()}
@@ -44,7 +44,7 @@ export default function OverdueList({ tasks }: { tasks: OverdueTask[] }) {
               Дедлайн: {format(new Date(task.deadline), "d MMMM yyyy", { locale: ru })}
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
             <Badge variant="destructive" className="text-[10px]">
               -{task.daysOverdue} дн.
             </Badge>

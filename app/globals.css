@@ -27,6 +27,7 @@
     --kanban-bg: 220 16% 92%;
     --kanban-column-bg: 220 14% 97%;
     --kanban-column-border: 220 13% 88%;
+    color-scheme: light;
   }
 
   .dark {
@@ -53,6 +54,7 @@
     --kanban-bg: 229 19% 8%;
     --kanban-column-bg: 229 19% 12%;
     --kanban-column-border: 229 19% 18%;
+    color-scheme: dark;
   }
 }
 
@@ -62,6 +64,18 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+  }
+
+  /* Native date/time pickers: stable height + picker affordance (aligns with Select h-9 py-2) */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    min-height: 2.25rem;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.65;
   }
 }
 

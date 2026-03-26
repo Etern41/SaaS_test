@@ -102,22 +102,22 @@ export default function AnalyticsPage() {
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-3">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+                <CardTitle className="min-w-0 shrink text-sm font-medium leading-snug">
                   Всего задач
                 </CardTitle>
-                <ListTodo className="h-4 w-4 text-muted-foreground" />
+                <ListTodo className="h-4 w-4 shrink-0 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{data.totalTasks}</div>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+                <CardTitle className="min-w-0 shrink text-sm font-medium leading-snug">
                   Выполнено
                 </CardTitle>
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 shrink-0 text-green-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -126,11 +126,11 @@ export default function AnalyticsPage() {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+                <CardTitle className="min-w-0 shrink text-sm font-medium leading-snug">
                   Просрочено
                 </CardTitle>
-                <AlertTriangle className="h-4 w-4 text-red-500" />
+                <AlertTriangle className="h-4 w-4 shrink-0 text-red-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-red-600">
@@ -142,10 +142,10 @@ export default function AnalyticsPage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Задачи по статусам
+              <CardHeader className="space-y-0 pb-3">
+                <CardTitle className="flex min-w-0 items-start gap-2 text-base leading-snug">
+                  <BarChart3 className="mt-0.5 h-5 w-5 shrink-0" />
+                  <span className="min-w-0">Задачи по статусам</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -153,10 +153,10 @@ export default function AnalyticsPage() {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-red-500" />
-                  Просроченные задачи
+              <CardHeader className="space-y-0 pb-3">
+                <CardTitle className="flex min-w-0 items-start gap-2 text-base leading-snug">
+                  <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+                  <span className="min-w-0">Просроченные задачи</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
